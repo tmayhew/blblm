@@ -1,5 +1,6 @@
 #' @import purrr
 #' @import stats
+#' @import furrr
 #' @importFrom magrittr %>%
 #' @details
 #' Linear Regression with Little Bag of Bootstraps
@@ -12,14 +13,25 @@ utils::globalVariables(c("."))
 
 
 #' @export
-blblm <- function(formula, data, m = 10, B = 5000) {
+blblm <- function(formula, data, m = 10, B = 5000, workers = 1){
   data_list <- split_data(data, m)
-  estimates <- map(
-    data_list,
-    ~ lm_each_subsample(formula = formula, data = ., n = nrow(data), B = B))
-  res <- list(estimates = estimates, formula = formula)
-  class(res) <- "blblm"
-  invisible(res)
+  if (workers > 1){
+    plan(multiprocess, workers = workers)
+    estimates <- future_map(
+      data_list,
+      ~ lm_each_subsample(formula = formula, data = ., n = nrow(data), B = B),
+      .options = furrr_options(seed = TRUE))
+    res <- list(estimates = estimates, formula = formula)
+    class(res) <- "blblm"
+    invisible(res)
+  } else{
+    estimates <- map(
+      data_list,
+      ~ lm_each_subsample(formula = formula, data = ., n = nrow(data), B = B))
+    res <- list(estimates = estimates, formula = formula)
+    class(res) <- "blblm"
+    invisible(res)
+  }
 }
 
 
