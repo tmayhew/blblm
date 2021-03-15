@@ -1,19 +1,23 @@
 Package: blblm
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Bag of Little Bootstraps for Modelling
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: John Mayhew
+Maintainer: <jmmayhew@ucdavis.edu>
+Description: This package uses bag of little bootstraps algorithm to apply modelling techniques on sub-samples of data. For a given data set with more than one variable, this package splits the data set into even sub-sections, fits a model to each sub-section of data, and then returns the mean coefficient values.
+    This package is also useful for constructing confidence intervals; because of the nature of bootstrap algorithms, there is a large enough sample of models which can be used reliably to construct confidence intervals based on percentiles rather than model assumptions. 
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests: 
-    testthat (>= 2.1.0)
+    testthat (>= 2.1.0),
+    tidyverse,
+    knitr,
+    rmarkdown
 Imports: 
     purrr,
     magrittr,
     furrr
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1
+VignetteBuilder: knitr

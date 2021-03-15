@@ -2,10 +2,15 @@
 % Please edit documentation in R/blblm.R
 \name{split_data}
 \alias{split_data}
-\title{split data into m parts of approximated equal sizes}
+\title{Split Data}
 \usage{
 split_data(data, m)
 }
+\arguments{
+\item{data}{data frame with predictors and response}
+
+\item{m}{integer, number of equal-size groups for bag of little bootstraps algorithm}
+}
 \description{
-split data into m parts of approximated equal sizes
+Splits data into m parts of approximated equal sizes.
 }

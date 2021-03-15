@@ -4,10 +4,10 @@
 \name{blblm-package}
 \alias{blblm}
 \alias{blblm-package}
-\title{blblm: What the Package Does (Title Case)}
+\title{blblm: Bag of Little Bootstraps for Modelling}
 \description{
-More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+This package uses bag of little bootstraps algorithm to apply modelling techniques on sub-samples of data. For a given data set with more than one variable, this package splits the data set into even sub-sections, fits a model to each sub-section of data, and then returns the mean coefficient values.
+    This package is also useful for constructing confidence intervals; because of the nature of bootstrap algorithms, there is a large enough sample of models which can be used reliably to construct confidence intervals based on percentiles rather than model assumptions.
 }
 \details{
 Linear Regression with Little Bag of Bootstraps
