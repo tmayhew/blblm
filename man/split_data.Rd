@@ -9,7 +9,7 @@ split_data(data, m)
 \arguments{
 \item{data}{data frame with predictors and response}
 
-\item{m}{integer, number of equal-size groups for bag of little bootstraps algorithm}
+\item{m}{an integer, number of equal-size groups for bag of little bootstraps algorithm}
 }
 \description{
 Splits data into m parts of approximated equal sizes.

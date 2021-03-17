@@ -10,5 +10,5 @@ This package uses bag of little bootstraps algorithm to apply modelling techniqu
     This package is also useful for constructing confidence intervals; because of the nature of bootstrap algorithms, there is a large enough sample of models which can be used reliably to construct confidence intervals based on percentiles rather than model assumptions.
 }
 \details{
-Linear Regression with Little Bag of Bootstraps
+Model Building with Little Bag of Bootstraps
 }

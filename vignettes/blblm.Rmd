@@ -1,5 +1,5 @@
 ---
-title: "blblm"
+title: "Bag of Little Bootstraps with blblm"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{blblm}
@@ -19,5 +19,148 @@ library(blblm)
 
 ```
 
-This vignette summarizes 
+This vignette summarizes the bag of little bootstraps algorithm when applied to linear regression (blblm) and logistic regression (blblogreg) procedures. There are 6 main components to the blblm package: blblm, blblogreg, coef, confint, sigma, and predict. All of these have additional documentation, which can be found in: `?blblm`, 
+
+`?blblogreg`, `?coef.blblm`, `?coef.blblogreg`, `?confint.blblm`, `?confint.blblogreg`, `?sigma.blblm`, `?sigma.blblogreg`, 
+
+`?predict.blblm`, and `?predict.blblogreg`. Let's jump in with an example of linear regression using blblm.
+
+## blblm
+
+blblm uses a bag of little bootstraps (BLB) procedure to construct a linear model for an entire data set by using subsets of the original data, applying weights to each observation, and then computing the linear model statistics (the model coefficients and sigma value).
+
+```{r}
+fit = blblm(mpg ~ wt * hp, data = mtcars, m = 3, B = 100)
+print(fit)
+
+```
+This algorithm is useful because (due to random sampling) we have approximate confidence intervals that do not rely on model assumptions such as normality.
+
+## Parallelization
+
+For very large data sets, this process can be sped up by adding parallelization; by using more than one CPU, we can employ parallel computing to improve the speed of the BLB algorithm. Do this by adding `parallel = TRUE` and `workers = n` (where n > 1).
+
+```{r}
+fit = blblm(mpg ~ wt * hp, data = mtcars, m = 3, B = 100, parallel = TRUE, workers = 4)
+print(fit)
+
+```
+Let's test our multiple-core solution against the original solution on a large data set.
+
+```{r}
+x = rnorm(2000, mean = 5, sd = 1)
+y = 3*x + rnorm(2000, mean = 0.5, sd = 0.4)
+z = (1/2)*y + rnorm(2000, mean = 1, sd = 0.5)
+m = (1/4)*y + rnorm(2000, mean = 1, sd = 0.5)
+large_data = data.frame(y, x, z, m)
+head(large_data)
+
+```
+
+Using parallelization, this is the run time:
+
+```{r}
+system.time(blblm(formula = y ~ x + z + m, data = large_data, m = 10, B = 5000, parallel = T, workers = 3))
+```
+
+Without using parallelization, we get the following run time:
+
+```{r}
+system.time(blblm(formula = y ~ x + z + m, data = large_data, m = 10, B = 5000))
+```
+
+In large data sets, the elapsed run time will be shorter using parallelization. Setting `parallel = TRUE` is an option in both blblm (as in the example above) and blblogreg (as we will see later). In most examples, however, I will be working with a smaller data set and it's therefore unnecessary to use parallelization, but it is a handy parameter to use for big data.
+
+## Finding estimates based on blblm
+
+Now that we have fit our model using the blblm algorithm, we can find estimates for coefficients, confidence intervals for the corresponding coefficients, sigma, and model prediction.
+
+Coefficient estimates are found using `coef()`:
+
+```{r}
+fit = blblm(mpg ~ wt * hp, data = mtcars, m = 3, B = 100)
+coef(fit)
+```
+
+This is done by taking each model in our BLB and averaging each coefficient value over the entire group of models. We can go a step further by using this group of models to construct confidence intervals for the coefficients; because of the way these are constructed, these intervals do not rely on distribution assumptions.
+
+Confidence intervals for coefficient estimates are found using `confint()`:
+
+```{r}
+fit = blblm(mpg ~ wt * hp, data = mtcars, m = 3, B = 100)
+confint(fit)
+
+```
+
+The function above takes the middle 95% of the model parameters and finds the coefficient values at the 2.5th and 97.5th percentiles. The default confidence level for `confint()` is .95, but this can be adjusted with `level`, as below.
+
+```{r}
+confint(fit, level = 0.99)
+
+```
+
+This confidence interval is wider to account for the improvement in confidence level. In this case, `confint()` took the middle 99% (rather than the middle 95%) of values.
+
+Sigma, the estimated standard deviation of the regression model, can be computed similarly, with options to add a confidence interval with `confidence = T` and change the confidence level of the interval with `level`. To just compute the value of sigma, use `sigma()`.
+
+```{r}
+fit = blblm(mpg ~ wt * hp, data = mtcars, m = 3, B = 100)
+sigma(fit)
+
+```
+To construct a confidence interval for sigma, set `confidence = T` and adjust `level`, similar to `confint()`:
+
+```{r}
+sigma(fit, confidence = T, level = 0.99)
+
+```
+Prediction using a blblm fitted object is implemented using `predict()`. This function takes in a data frame with predictor variables as column values (`new_data`) and makes a prediction on the value of the response variable based on the BLB model coefficients. In our example with the `mtcars` data set and the model we used previously, our new data should have column values `wt` and `hp`.  
+
+```{r}
+fit = blblm(mpg ~ wt * hp, data = mtcars, m = 3, B = 100)
+example_data = data.frame(wt = sample(mtcars$wt, 5), hp = sample(mtcars$hp, 5))
+example_data
+
+```
+As before, constructing a confidence interval is as simple as setting `confidence = T` and changing the value of `level`.
+
+```{r}
+predict(fit, new_data = example_data, confidence = T, level = 0.99)
+
+```
+\pagebreak
+
+## blblogreg
+
+blblogreg uses a bag of little bootstraps (BLB) procedure to construct a logistic model for an entire data set by using subsets of the original data, applying weights to each observation, and then computing the logistic model statistics (the model coefficients).
+
+```{r, warning=FALSE}
+fit = blblogreg(vs ~ disp + qsec, data = mtcars, m = 1, B = 100)
+print(fit)
+
+```
+## Finding estimates based on blblogreg
+
+Estimates for blblogreg coefficients are found in the same way as in blblm implementation, short examples are listed below for `coef()` and `confint()`:
+
+```{r}
+coef(fit)
+
+```
+
+```{r}
+confint(fit)
+
+```
+The only difference is in prediction; the model for logistic regression is based on the logit, which is the $ln(\frac{p}{1-p})$. In order to convert model scores to predicted probability, our prediction function incorporates $\frac{e^{response}}{1+e^{response}}$. This formula gives a predicted probability of the response being equal to 1. Again, a confidence interval can be constructed using `confidence = T` and setting `level`.
+
+```{r}
+example_data = data.frame(disp = sample(mtcars$disp, 1), qsec = sample(mtcars$qsec, 1))
+predict(fit, new_data = example_data, confidence = T, level = 0.95)
+
+```
+This indicates the 95% confidence interval for the response variable.
+
+
+
 

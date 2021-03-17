@@ -2,15 +2,15 @@
 % Please edit documentation in R/blblm.R
 \name{print.blblm}
 \alias{print.blblm}
-\title{Printing blblm}
+\title{Print blblm}
 \usage{
 \method{print}{blblm}(x, ...)
 }
 \arguments{
 \item{x}{model fit produced by blblm(formula, data, ...)}
 
-\item{...}{}
+\item{...}{other arguments.}
 }
 \description{
-Prints the formula from the blblm function.
+Prints the formula from the blblm function
 }

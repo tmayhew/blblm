@@ -9,7 +9,7 @@
 \arguments{
 \item{object}{model fit produced by blblm(formula, data, ...)}
 
-\item{...}{}
+\item{...}{other arguments.}
 }
 \description{
 Outputs the coefficients for the fitted object (after blblm algorithm)
